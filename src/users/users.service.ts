@@ -116,6 +116,9 @@ export class UsersService {
   }
 
   async remove(id: number) {
+    if (id === 1) {
+      throw new BadRequestException('内置超管账号不允许删除');
+    }
     const user = await this.userRepo.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException('用户不存在');

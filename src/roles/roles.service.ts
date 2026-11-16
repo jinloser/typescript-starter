@@ -90,6 +90,9 @@ export class RolesService {
     if (!role) {
       throw new NotFoundException('角色不存在');
     }
+    if (['super_admin', 'admin'].includes(role.code)) {
+      throw new BadRequestException('内置角色不允许删除');
+    }
     await this.roleRepo.remove(role);
     return { success: true };
   }

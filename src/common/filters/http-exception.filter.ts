@@ -26,12 +26,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
       if (status === HttpStatus.UNAUTHORIZED && msg === 'Unauthorized') {
         msg = '未登录或登录已过期';
       }
-      response.status(status).json({ code: status, data: null, msg });
+      response.status(status).json({ code: -1, data: null, msg });
       return;
     }
 
     response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      code: HttpStatus.INTERNAL_SERVER_ERROR,
+      code: -1,
       data: null,
       msg: '服务器内部错误',
     });

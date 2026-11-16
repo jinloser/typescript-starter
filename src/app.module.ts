@@ -3,12 +3,12 @@ import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { createObserveModule } from '@nestjs/observe';
-import { AppController } from './app.controller.js';
-import { AppService } from './app.service.js';
 import { User } from './users/entities/user.entity.js';
 import { Role } from './roles/entities/role.entity.js';
 import { Menu } from './menus/entities/menu.entity.js';
+import { InitSchema20261116000000 } from './database/migrations/20261116000000-init-schema.js';
 import { SeedService } from './database/seed.service.js';
 import { AuthModule } from './auth/auth.module.js';
 import { UsersModule } from './users/users.module.js';
@@ -32,10 +32,15 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
         password: config.get<string>('DB_PASSWORD', ''),
         database: config.get<string>('DB_DATABASE', 'admin_system'),
         entities: [User, Role, Menu],
-        synchronize: true,
+        // 生产环境关闭 synchronize，改用 migration 管理表结构
+        synchronize: false,
+        migrations: [InitSchema20261116000000],
+        migrationsRun: true,
         charset: 'utf8mb4',
       }),
     }),
+    // 登录接口限流（默认 60 秒 10 次，login 接口单独收紧为 5 次）
+    ThrottlerModule.forRoot([{ ttl: 60000, limit: 10 }]),
     JwtModule.register({}),
     AuthModule,
     UsersModule,
@@ -50,9 +55,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       serviceId: 'nest-typescript-starter',
     }),
   ],
-  controllers: [AppController],
   providers: [
-    AppService,
     SeedService,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: PermissionsGuard },
