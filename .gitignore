@@ -8,9 +8,15 @@
 /tmp
 /out-tsc
 /*.tsbuildinfo
+web/dist
 
 # dependencies
-/node_modules
+node_modules/
+
+# local dev artifacts
+/dev-server.log
+/.trae
+/.trae-html-share-packages
 
 # IDEs and editors
 /.idea
