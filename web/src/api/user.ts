@@ -13,6 +13,7 @@ export interface UserItem {
   email: string | null;
   phone: string | null;
   status: number;
+  avatar: string | null;
   createdAt: string;
   updatedAt: string;
   roles: RoleBrief[];
@@ -38,6 +39,7 @@ export interface UserForm {
   email?: string;
   phone?: string;
   status?: number;
+  avatar?: string;
 }
 
 export function getUsers(params: UserQuery) {

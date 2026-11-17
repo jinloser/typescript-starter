@@ -1,13 +1,24 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { DeepPartial, In, Like, Repository } from 'typeorm';
 import bcrypt from 'bcryptjs';
-import { User } from './entities/user.entity.js';
+import {
+  DeepPartial,
+  In,
+  Like,
+  Repository,
+} from 'typeorm';
+
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+
 import { Role } from '../roles/entities/role.entity.js';
-import { CreateUserDto } from './dto/create-user.dto.js';
-import { UpdateUserDto } from './dto/update-user.dto.js';
-import { QueryUserDto } from './dto/query-user.dto.js';
 import { AssignRolesDto } from './dto/assign-roles.dto.js';
+import { CreateUserDto } from './dto/create-user.dto.js';
+import { QueryUserDto } from './dto/query-user.dto.js';
+import { UpdateUserDto } from './dto/update-user.dto.js';
+import { User } from './entities/user.entity.js';
 
 @Injectable()
 export class UsersService {
@@ -33,6 +44,7 @@ export class UsersService {
         email: true,
         phone: true,
         status: true,
+        avatar: true,
         createdAt: true,
         updatedAt: true,
         roles: { id: true, name: true, code: true },
@@ -55,6 +67,7 @@ export class UsersService {
         email: true,
         phone: true,
         status: true,
+        avatar: true,
         createdAt: true,
         updatedAt: true,
         roles: { id: true, name: true, code: true },
@@ -79,6 +92,7 @@ export class UsersService {
       email: dto.email ?? null,
       phone: dto.phone ?? null,
       status: dto.status ?? 1,
+      avatar: dto.avatar ?? null,
     } as DeepPartial<User>);
     await this.userRepo.save(user);
     return this.findOne(user.id);
@@ -107,6 +121,9 @@ export class UsersService {
     }
     if (dto.status !== undefined) {
       user.status = dto.status;
+    }
+    if (dto.avatar !== undefined) {
+      user.avatar = dto.avatar;
     }
     if (dto.password) {
       user.password = await bcrypt.hash(dto.password, 10);

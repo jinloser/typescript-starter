@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue';
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus';
+import {
+  ElMessage,
+  ElMessageBox,
+  type FormInstance,
+  type FormRules,
+  type UploadRequestOptions,
+} from 'element-plus';
 import {
   getUsers,
   createUser,
@@ -10,6 +16,7 @@ import {
   type UserItem,
   type UserForm,
 } from '../../../api/user';
+import { uploadFile } from '../../../api/upload';
 import { getRoleOptions, type RoleItem } from '../../../api/role';
 
 const loading = ref(false);
@@ -50,6 +57,7 @@ const form = reactive({
   email: '',
   phone: '',
   status: 1,
+  avatar: '',
 });
 
 const rules = computed<FormRules>(() => ({
@@ -61,7 +69,7 @@ const rules = computed<FormRules>(() => ({
 
 function openCreate() {
   editing.value = null;
-  Object.assign(form, { username: '', password: '', nickname: '', email: '', phone: '', status: 1 });
+  Object.assign(form, { username: '', password: '', nickname: '', email: '', phone: '', status: 1, avatar: '' });
   dialogVisible.value = true;
 }
 
@@ -74,8 +82,31 @@ function openEdit(row: UserItem) {
     email: row.email || '',
     phone: row.phone || '',
     status: row.status,
+    avatar: row.avatar || '',
   });
   dialogVisible.value = true;
+}
+
+const uploading = ref(false);
+
+async function handleUpload(options: UploadRequestOptions) {
+  const file = options.file as File;
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+    ElMessage.error('只支持 jpg/png/webp 图片');
+    return;
+  }
+  if (file.size > 2 * 1024 * 1024) {
+    ElMessage.error('图片不能超过 2MB');
+    return;
+  }
+  uploading.value = true;
+  try {
+    const res = await uploadFile(file);
+    form.avatar = res.url;
+    ElMessage.success('头像上传成功');
+  } finally {
+    uploading.value = false;
+  }
 }
 
 async function handleSave() {
@@ -152,6 +183,13 @@ onMounted(loadList);
       </div>
       <el-table v-loading="loading" :data="list" border stripe>
         <el-table-column prop="id" label="ID" width="70" />
+        <el-table-column label="头像" width="80">
+          <template #default="{ row }">
+            <el-avatar :size="36" :src="row.avatar || undefined">
+              {{ (row.nickname || row.username || '').slice(0, 1) }}
+            </el-avatar>
+          </template>
+        </el-table-column>
         <el-table-column prop="username" label="用户名" min-width="120" />
         <el-table-column prop="nickname" label="昵称" min-width="120" />
         <el-table-column prop="email" label="邮箱" min-width="160" />
@@ -190,6 +228,19 @@ onMounted(loadList);
 
     <el-dialog v-model="dialogVisible" :title="editing ? '编辑用户' : '新增用户'" width="520px">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
+        <el-form-item label="头像" prop="avatar">
+          <el-upload
+            :show-file-list="false"
+            :http-request="handleUpload"
+            accept="image/jpeg,image/png,image/webp"
+          >
+            <el-avatar v-if="form.avatar" v-loading="uploading" :size="64" :src="form.avatar" />
+            <div v-else v-loading="uploading" class="avatar-placeholder">
+              <el-icon><Plus /></el-icon>
+            </div>
+          </el-upload>
+          <div class="avatar-tip">支持 jpg/png/webp，不超过 2MB</div>
+        </el-form-item>
         <el-form-item label="用户名" prop="username">
           <el-input v-model="form.username" />
         </el-form-item>
@@ -243,5 +294,26 @@ onMounted(loadList);
 }
 .role-tag {
   margin-right: 4px;
+}
+.avatar-placeholder {
+  width: 64px;
+  height: 64px;
+  border: 1px dashed #dcdfe6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8c939d;
+  font-size: 20px;
+  cursor: pointer;
+}
+.avatar-placeholder:hover {
+  border-color: #409eff;
+  color: #409eff;
+}
+.avatar-tip {
+  margin-left: 12px;
+  color: #909399;
+  font-size: 12px;
 }
 </style>

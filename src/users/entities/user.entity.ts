@@ -33,6 +33,9 @@ export class User {
   @Column({ type: 'tinyint', default: 1, comment: '1 启用 0 禁用' })
   status: number;
 
+  @Column({ type: 'varchar', length: 255, default: '', comment: '头像URL' })
+  avatar: string;
+
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable({
     name: 'user_roles',

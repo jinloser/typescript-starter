@@ -9,6 +9,7 @@
 /out-tsc
 /*.tsbuildinfo
 web/dist
+uploads/*
 
 # dependencies
 node_modules/

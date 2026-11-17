@@ -12,12 +12,22 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module.js';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard.js';
 import { PermissionsGuard } from './common/guards/permissions.guard.js';
+import { UploadController } from './common/upload.controller.js';
+import {
+  AddUserAvatarToUsers1794900188286,
+} from './database/migrations/1794900188286-AddUserAvatarToUsers.js';
 import {
   InitSchema20261116000000,
 } from './database/migrations/20261116000000-init-schema.js';
 import {
   CreateNotices20261117120000,
 } from './database/migrations/20261117120000-create-notices.js';
+import {
+  SyncSchemaWithEntities20261117143300,
+} from './database/migrations/20261117143300-sync-schema-with-entities.js';
+import {
+  DropLeftoverFkIndexes20261117144000,
+} from './database/migrations/20261117144000-drop-leftover-fk-indexes.js';
 import { SeedService } from './database/seed.service.js';
 import { Menu } from './menus/entities/menu.entity.js';
 import { MenusModule } from './menus/menus.module.js';
@@ -45,7 +55,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
         entities: [User, Role, Menu, Notice],
         // 生产环境关闭 synchronize，改用 migration 管理表结构
         synchronize: false,
-        migrations: [InitSchema20261116000000, CreateNotices20261117120000],
+        migrations: [InitSchema20261116000000, CreateNotices20261117120000, SyncSchemaWithEntities20261117143300, DropLeftoverFkIndexes20261117144000, AddUserAvatarToUsers1794900188286],
         migrationsRun: true,
         charset: 'utf8mb4',
       }),
@@ -67,6 +77,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       serviceId: 'nest-typescript-starter',
     }),
   ],
+  controllers: [UploadController],
   providers: [
     SeedService,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
