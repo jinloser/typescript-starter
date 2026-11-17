@@ -10,13 +10,20 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { RequirePermissions } from '../common/decorators/require-permissions.decorator.js';
-import { UsersService } from './users.service.js';
-import { CreateUserDto } from './dto/create-user.dto.js';
-import { UpdateUserDto } from './dto/update-user.dto.js';
-import { QueryUserDto } from './dto/query-user.dto.js';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+
+import {
+  RequirePermissions,
+} from '../common/decorators/require-permissions.decorator.js';
 import { AssignRolesDto } from './dto/assign-roles.dto.js';
+import { CreateUserDto } from './dto/create-user.dto.js';
+import { QueryUserDto } from './dto/query-user.dto.js';
+import { UpdateUserDto } from './dto/update-user.dto.js';
+import { UsersService } from './users.service.js';
 
 @ApiTags('users')
 @ApiBearerAuth()

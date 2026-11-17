@@ -8,6 +8,7 @@ import {
   deleteUser,
   assignUserRoles,
   type UserItem,
+  type UserForm,
 } from '../../../api/user';
 import { getRoleOptions, type RoleItem } from '../../../api/role';
 
@@ -81,7 +82,7 @@ async function handleSave() {
   if (!formRef.value) return;
   const valid = await formRef.value.validate().catch(() => false);
   if (!valid) return;
-  const payload = { ...form };
+  const payload: UserForm = { ...form };
   if (editing.value) {
     if (!payload.password) delete payload.password;
     await updateUser(editing.value, payload);
